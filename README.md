@@ -106,12 +106,39 @@ Open `http://127.0.0.1:8000` to try the APIs.
 
 ---
 
-## 7. Useful Management Commands / Helpers
+## 6. Useful Management Commands / Helpers
 
 - Create a super admin via Django `createsuperuser` or a custom management command that assigns the Super Admin role in `Users_Roles`.
 - Create admin user workflow:
   - Super Admin calls `POST /api/admins/` with `email` and `name`.
   - System creates a user with Admin role
 ---
+## 7. Folder structure
 
-```
+```bas
+   campus-connect-backend
+   ├── __pycache__
+   │   └── tests_user_creation.cpython-313-pytest-9.0.1.pyc
+   ├── campus_connect
+   │   ├── __init__.py
+   │   ├── __pycache__
+   │   ├── asgi.py
+   │   ├── settings.py
+   │   ├── urls.py
+   │   └── wsgi.py
+   ├── manage.py
+   ├── pytest.ini
+   ├── README.md
+   ├── requirements.txt
+   ├── tests
+   │   ├── __pycache__
+   │   └── test_user_creation.py
+   └── venv
+      ├── bin
+      ├── include
+      ├── lib
+      └── pyvenv.cfg
+
+
+
+
