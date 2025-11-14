@@ -116,12 +116,9 @@ Open `http://127.0.0.1:8000` to try the APIs.
 ## 7. Folder structure
 
 ```bas
-   campus-connect-backend
-   ├── __pycache__
-   │   └── tests_user_creation.cpython-313-pytest-9.0.1.pyc
+   campus-connect-backend  
    ├── campus_connect
    │   ├── __init__.py
-   │   ├── __pycache__
    │   ├── asgi.py
    │   ├── settings.py
    │   ├── urls.py
@@ -131,14 +128,8 @@ Open `http://127.0.0.1:8000` to try the APIs.
    ├── README.md
    ├── requirements.txt
    ├── tests
-   │   ├── __pycache__
-   │   └── test_user_creation.py
-   └── venv
-      ├── bin
-      ├── include
-      ├── lib
-      └── pyvenv.cfg
-
+       └── test_user_creation.py
+   
 
 
 
