@@ -30,7 +30,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG").lower() == "true"
 
-ALLOWED_HOSTS = []
+
 
 
 # Application definition
