@@ -136,7 +136,7 @@ celerybeat.pid
 
 # Environments
 .env
-.env.example
+# .env.example
 .envrc
 .venv
 env/
@@ -206,3 +206,7 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+#pytest
+.DS_Store
