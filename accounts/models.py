@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 import uuid
 
 class User(AbstractUser):
-    id=models.UUIDField(primary_key=True,default=uuid.uuid4)
+    id=models.UUIDField(primary_key=True,editable=False,default=uuid.uuid4)
     email = models.EmailField(unique=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -19,7 +19,7 @@ class Role(models.Model):
         ('admin', 'Admin'),
         ('super_admin', 'Super Admin'),
     ]
-    id=models.UUIDField(primary_key=True,default=uuid.uuid4)
+    id=models.UUIDField(primary_key=True,editable=False,default=uuid.uuid4)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -28,7 +28,7 @@ class Role(models.Model):
 
 
 class UserRole(models.Model):
-    id=models.UUIDField(primary_key=True,default=uuid.uuid4)
+    id=models.UUIDField(primary_key=True,editable=False,default=uuid.uuid4)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_roles')
     role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='user_roles')
     created_at = models.DateTimeField(auto_now_add=True)
