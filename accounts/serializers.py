@@ -1,8 +1,23 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import Role, User, UserRole
+import re
 
+def validate_alpha(value):
+    """Validate names: no blank spaces, only alphabets, auto-capitalize."""
 
+    cleaned = value.strip()  # Remove extra spaces
+
+    if cleaned == "":
+        raise serializers.ValidationError("This field cannot be empty or spaces only.")
+
+    if len(cleaned) < 2:
+        raise serializers.ValidationError("Name must be at least 2 characters.")
+
+    if not re.match(r'^[A-Za-z]+$', cleaned):
+        raise serializers.ValidationError("Only alphabets are allowed.")
+
+    return cleaned.capitalize()
 class UserSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
 
