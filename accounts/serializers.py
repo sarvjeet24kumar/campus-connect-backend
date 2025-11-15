@@ -4,9 +4,8 @@ from .models import Role, User, UserRole
 import re
 
 def validate_alpha(value):
-    """Validate names: no blank spaces, only alphabets, auto-capitalize."""
 
-    cleaned = value.strip()  # Remove extra spaces
+    cleaned = value.strip() 
 
     if cleaned == "":
         raise serializers.ValidationError("This field cannot be empty or spaces only.")
@@ -33,11 +32,17 @@ class UserSerializer(serializers.ModelSerializer):
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True, min_length=8)
-
+    first_name = serializers.CharField(required=True, allow_blank=False)
+    last_name = serializers.CharField( allow_blank=True)
     class Meta:
         model = User
         fields = ('username', 'email', 'password', 'password_confirm', 'first_name', 'last_name')
+    def validate_first_name(self, value):
+        return validate_alpha(value,'first_name')
 
+    def validate_last_name(self, value):
+        return validate_alpha(value,'last_name')
+    
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError("Username already exists.")
