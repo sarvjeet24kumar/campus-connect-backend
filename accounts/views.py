@@ -40,7 +40,6 @@ def login_view(request):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         
         return Response({
@@ -56,21 +55,18 @@ def login_view(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def logout_view(request):
     try:
         refresh_token = request.data.get('refresh')
         if refresh_token:
             token = RefreshToken(refresh_token)
             token.blacklist()
-    except Exception:
-        # If token is invalid or already blacklisted, ignore
-        pass
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def current_user(request):
     user_roles = [user_role.role.role for user_role in request.user.user_roles.all()]
     return Response({

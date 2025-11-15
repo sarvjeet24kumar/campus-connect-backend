@@ -3,27 +3,14 @@ from rest_framework import serializers
 from .models import Role, User, UserRole
 import re
 
-def validate_alpha(value):
 
-    cleaned = value.strip() 
-
-    if cleaned == "":
-        raise serializers.ValidationError("This field cannot be empty or spaces only.")
-
-    if len(cleaned) < 2:
-        raise serializers.ValidationError("Name must be at least 2 characters.")
-
-    if not re.match(r'^[A-Za-z]+$', cleaned):
-        raise serializers.ValidationError("Only alphabets are allowed.")
-
-    return cleaned.capitalize()
 class UserSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'roles', 'created_at')
-        read_only_fields = ('id', 'created_at')
+        read_only_fields = ('id','username','created_at')
 
     def get_roles(self, obj):
         return [user_role.role.role for user_role in obj.user_roles.all()]
@@ -38,10 +25,10 @@ class SignupSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email', 'password', 'password_confirm', 'first_name', 'last_name')
     def validate_first_name(self, value):
-        return validate_alpha(value,'first_name')
+        return self.validate_alpha(value,'first_name')
 
     def validate_last_name(self, value):
-        return validate_alpha(value,'last_name')
+        return self.validate_alpha(value,'last_name')
     
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
@@ -70,6 +57,16 @@ class SignupSerializer(serializers.ModelSerializer):
 
         return user
 
+    def validate_alpha(self,value,field_name):
+        cleaned = value.strip()
+        if cleaned == "":
+            raise serializers.ValidationError(f"{field_name} cannot be empty or spaces only.")
+        if len(cleaned) < 2:
+            raise serializers.ValidationError(f"{field_name} must be at least 2 characters.")
+        if not re.match(r'^[A-Za-z]+$', cleaned):
+            raise serializers.ValidationError(f"Only alphabets are allowed in {field_name}.")
+
+        return cleaned.capitalize()
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
