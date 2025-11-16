@@ -10,7 +10,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Additional Info', {'fields': ('created_at', 'updated_at', 'deleted_at')}),
     )
-    readonly_fields = ('username','created_at', 'updated_at', 'deleted_at')
+    readonly_fields = ('created_at', 'updated_at', 'deleted_at')
 
     def get_roles(self, obj):
         return ", ".join([user_role.role.role for user_role in obj.user_roles.all()])
