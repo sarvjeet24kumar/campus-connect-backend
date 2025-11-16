@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from .models import Event, Location, Registration
 from .serializers import EventSerializer, LocationSerializer, RegistrationSerializer, StudentRegistrationSerializer
-
+from rest_framework.exceptions import PermissionDenied, ValidationError as DRFValidationError
 
 class LocationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Location.objects.all()
@@ -36,8 +36,6 @@ class EventViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        from rest_framework.exceptions import PermissionDenied
-
         if not self.request.user.is_authenticated:
             raise PermissionDenied('Authentication required')
 
@@ -51,8 +49,6 @@ class EventViewSet(viewsets.ModelViewSet):
             raise DRFValidationError(exc.messages)
 
     def perform_update(self, serializer):
-        from rest_framework.exceptions import PermissionDenied
-
         if not self.request.user.is_authenticated:
             raise PermissionDenied('Authentication required')
 
@@ -112,8 +108,6 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         return Registration.objects.filter(student=self.request.user)
 
     def perform_create(self, serializer):
-        from rest_framework.exceptions import PermissionDenied, ValidationError as DRFValidationError
-
         user_roles = [user_role.role.role for user_role in self.request.user.user_roles.all()]
         if 'admin' in user_roles or 'super_admin' in user_roles:
             raise PermissionDenied('Admins cannot register for events')
@@ -133,7 +127,6 @@ class RegistrationViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def unregister(self, request, pk=None):
-        """Unregister from an event"""
         registration = self.get_object()
 
         if registration.student != request.user:
@@ -144,7 +137,6 @@ class RegistrationViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def my_registrations(self, request):
-        """Get current user's registrations with event details"""
         registrations = Registration.objects.filter(student=request.user, status='registered')
         serializer = StudentRegistrationSerializer(registrations, many=True)
         return Response(serializer.data)

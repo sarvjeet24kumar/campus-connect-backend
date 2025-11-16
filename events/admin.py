@@ -5,7 +5,7 @@ from .models import Event, Location, Registration
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ('location', 'capacity', 'created_at')
+    list_display = ('name', 'capacity', 'created_at')
 
 
 @admin.register(Event)
