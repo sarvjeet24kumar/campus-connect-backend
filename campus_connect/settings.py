@@ -43,7 +43,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+    'rest_framework',
     'accounts',
+    'events',
 ]
 
 MIDDLEWARE = [
@@ -143,3 +147,12 @@ CORS_ALLOWED_ORIGINS = [o.strip() for o in _raw_cors.split(',') if o.strip()]
 if not CORS_ALLOWED_ORIGINS and os.getenv('DJANGO_DEBUG', 'FALSE').upper() in ('1', 'TRUE', 'YES'):
     CORS_ALLOW_ALL_ORIGINS = True
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+};
