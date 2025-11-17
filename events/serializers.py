@@ -3,15 +3,15 @@ from .models import Event, Location, Registration
 
 
 class LocationSerializer(serializers.ModelSerializer):
-    location_display = serializers.CharField(source='get_location_display', read_only=True)
+    location_display = serializers.CharField(source='get_name_display', read_only=True)
 
     class Meta:
         model = Location
-        fields = ('id', 'location', 'location_display', 'capacity')
+        fields = ('id', 'name', 'location_display', 'capacity')
 
 
 class EventSerializer(serializers.ModelSerializer):
-    location_name = serializers.CharField(source='location.get_location_display', read_only=True)
+    location_name = serializers.CharField(source='location.name', read_only=True)
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)
     available_seats = serializers.IntegerField(read_only=True)
     is_past = serializers.BooleanField(read_only=True)
@@ -29,6 +29,17 @@ class EventSerializer(serializers.ModelSerializer):
     def get_registered_count(self, obj):
         return obj.registrations.filter(status='registered').count()
 
+    def validate(self, data):
+        location = data.get('location') or getattr(self.instance, 'location', None)
+        seats = data.get('seats') or getattr(self.instance, 'seats', None)
+
+        if location and seats: 
+            if seats > location.capacity:
+                raise serializers.ValidationError(
+                    {"seats": f"Seats ({seats}) cannot exceed location capacity ({location.capacity})."}
+                )
+
+        return data
 
 class RegistrationSerializer(serializers.ModelSerializer):
     event_title = serializers.CharField(source='event.title', read_only=True)

@@ -15,8 +15,8 @@ class Location(models.Model):
         ('outdoor', 'Outdoor'),
     ]
     id=models.UUIDField(primary_key=True,editable=False,default=uuid.uuid4)
-    location = models.CharField(max_length=50, choices=LOCATION_CHOICES, unique=True)
-    capacity = models.IntegerField(default=100)
+    name = models.CharField(max_length=50, choices=LOCATION_CHOICES, unique=True)
+    capacity = models.PositiveIntegerField(default=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

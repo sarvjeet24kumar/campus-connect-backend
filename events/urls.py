@@ -5,8 +5,8 @@ from .views import EventViewSet, LocationViewSet, RegistrationViewSet
 
 router = DefaultRouter()
 router.register(r'locations', LocationViewSet, basename='location')
-router.register(r'events', EventViewSet, basename='event')
 router.register(r'registrations', RegistrationViewSet, basename='registration')
+router.register(r'', EventViewSet, basename='event') 
 
 urlpatterns = [
     path('', include(router.urls)),
