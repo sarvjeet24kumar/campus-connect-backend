@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import Role, User, UserRole
+import re
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -9,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'roles', 'created_at')
-        read_only_fields = ('id', 'created_at')
+        read_only_fields = ('id','username','created_at')
 
     def get_roles(self, obj):
         return [user_role.role.role for user_role in obj.user_roles.all()]
@@ -18,11 +19,17 @@ class UserSerializer(serializers.ModelSerializer):
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True, min_length=8)
-
+    first_name = serializers.CharField(required=True, allow_blank=False)
+    last_name = serializers.CharField( allow_blank=True)
     class Meta:
         model = User
         fields = ('username', 'email', 'password', 'password_confirm', 'first_name', 'last_name')
+    def validate_first_name(self, value):
+        return self.validate_alpha(value,'first_name')
 
+    def validate_last_name(self, value):
+        return self.validate_alpha(value,'last_name')
+    
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError("Username already exists.")
@@ -50,6 +57,16 @@ class SignupSerializer(serializers.ModelSerializer):
 
         return user
 
+    def validate_alpha(self,value,field_name):
+        cleaned = value.strip()
+        if cleaned == "":
+            raise serializers.ValidationError(f"{field_name} cannot be empty or spaces only.")
+        if len(cleaned) < 2:
+            raise serializers.ValidationError(f"{field_name} must be at least 2 characters.")
+        if not re.match(r'^[A-Za-z]+$', cleaned):
+            raise serializers.ValidationError(f"Only alphabets are allowed in {field_name}.")
+
+        return cleaned.capitalize()
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
