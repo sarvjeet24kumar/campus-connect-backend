@@ -44,20 +44,15 @@ jobs:
           script: |
             cd /home/ubuntu/django-app
 
-            # Activate virtual environment
+
             source venv/bin/activate
 
-            # Install dependencies
             pip install -r requirements.txt
 
-            # Apply migrations
             python manage.py migrate
 
-            # Collect static files
             python manage.py collectstatic --no-input
 
-            # Restart gunicorn + nginx
             sudo systemctl restart gunicorn
             sudo systemctl restart nginx
 
-            echo "🚀 Deployment Successful!"
