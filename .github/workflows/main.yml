@@ -22,7 +22,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-    
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -32,9 +31,6 @@ jobs:
           source: "."
           target: "/home/ubuntu/django-app"
 
-      # -----------------------
-      # 6. SSH into EC2 and Deploy
-      # -----------------------
       - name: Execute remote SSH commands
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -54,5 +50,4 @@ jobs:
             python manage.py collectstatic --no-input
 
             sudo systemctl restart gunicorn
-            sudo systemctl restart nginx
-
+            pm2 start "python3 manage.py runserver 0.0.0.0:8000" --name campus-connect
