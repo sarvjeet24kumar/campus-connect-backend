@@ -38,16 +38,13 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/django-app
+            cd /home/ubuntu/campus-connect-backend
 
 
             source venv/bin/activate
-
+            git pull 
             pip install -r requirements.txt
-
             python manage.py migrate
-
             python manage.py collectstatic --no-input
-
-            sudo systemctl restart gunicorn
+            pm2 delete campus-connect
             pm2 start "python3 manage.py runserver 0.0.0.0:8000" --name campus-connect
