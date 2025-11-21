@@ -6,9 +6,11 @@ from .models import Role, User, UserRole
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('id','username', 'email', 'get_roles', 'created_at')
-    fieldsets = BaseUserAdmin.fieldsets + (
-        ('Additional Info', {'fields': ('created_at', 'updated_at', 'deleted_at')}),
+    list_display = ('id', 'username', 'email', 'get_roles', 'created_at')
+    
+  
+    add_fieldsets = BaseUserAdmin.add_fieldsets + (
+        ('Account Info', {'fields': ('email','first_name')}),
     )
     readonly_fields = ('created_at', 'updated_at', 'deleted_at')
 

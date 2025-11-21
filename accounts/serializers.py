@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate
+from django.forms import ValidationError
 from rest_framework import serializers
 from .models import Role, User, UserRole
+from rest_framework.exceptions import AuthenticationFailed
 import re
 
 
@@ -9,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'roles', 'created_at')
+        fields = ('id','username', 'email', 'first_name', 'last_name', 'roles')
         read_only_fields = ('id','username','created_at')
 
     def get_roles(self, obj):
@@ -36,6 +38,13 @@ class SignupSerializer(serializers.ModelSerializer):
         return value
 
     def validate_email(self, value):
+        try:
+            email = value.strip()
+            regex = r'^[A-Za-z0-9._%+-]+@[a-z]+.[A-Za-z]{2,}$'
+            if not re.match(regex, email):
+                raise serializers.ValidationError("Invalid email format.")
+        except ValidationError:
+            raise serializers.ValidationError("Invalid email format.")
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("Email already exists.")
         return value
@@ -78,7 +87,7 @@ class LoginSerializer(serializers.Serializer):
         request = self.context.get('request')
         user = authenticate(request=request, username=username, password=password)
         if not user:
-            raise serializers.ValidationError('Invalid credentials')
+            raise AuthenticationFailed('Invalid credentials')
         attrs['user'] = user
         return attrs
 

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 
 
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'events',
+    'corsheaders', 
 ]
 
 MIDDLEWARE = [
@@ -137,6 +139,11 @@ STATIC_URL = 'static/'
 
 #custom User Model
 AUTH_USER_MODEL = 'accounts.User'
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7)
+}
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

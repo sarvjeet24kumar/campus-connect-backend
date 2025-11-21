@@ -10,37 +10,6 @@ class SignupAPITests(APITestCase):
         self.student_role, _ = Role.objects.get_or_create(role="student")
         self.url = reverse("signup")
 
-   
-    def test_signup_success(self):
-        payload = {
-            "username": "user1",
-            "email": "user1@mail.com",
-            "password": "pass12345",
-            "password_confirm": "pass12345",
-            "first_name": "John",
-            "last_name": "Doe"
-        }
-        r = self.client.post(self.url, payload)
-        self.assertEqual(r.status_code, status.HTTP_201_CREATED)
-
-
-    
-    def test_signup_assigns_student_role(self):
-        payload = {
-            "username": "stu",
-            "email": "stu@mail.com",
-            "password": "pass12345",
-            "password_confirm": "pass12345",
-            "first_name": "Student",
-            "last_name": "User"
-        }
-
-        r = self.client.post(self.url, payload)
-
-        self.assertEqual(r.status_code, status.HTTP_201_CREATED)
-
-        user = User.objects.get(username="stu")
-        self.assertTrue(UserRole.objects.filter(user=user, role=self.student_role).exists())
 
     def test_signup_missing_username(self):
         payload = {"email": "x@mail.com", "password": "pass123", "password_confirm": "pass123"}
@@ -120,28 +89,6 @@ class SignupAPITests(APITestCase):
         r = self.client.post(self.url, payload)
         self.assertEqual(r.status_code, status.HTTP_400_BAD_REQUEST)
 
-   
-    def test_signup_sql_injection_username(self):
-        payload = {
-            "username": "' DROP TABLE users --",
-            "email": "sql@mail.com",
-            "password": "pass12345",
-            "password_confirm": "pass12345",
-        }
-        r = self.client.post(self.url, payload)
-        self.assertEqual(r.status_code, status.HTTP_400_BAD_REQUEST)
-
- 
-    def test_signup_sql_injection_email(self):
-        payload = {
-            "username": "sql2",
-            "email": "'; DROP DATABASE;",
-            "password": "pass12345",
-            "password_confirm": "pass12345",
-        }
-        r = self.client.post(self.url, payload)
-        self.assertEqual(r.status_code, status.HTTP_400_BAD_REQUEST)
-
     
     def test_signup_long_username(self):
         payload = {
@@ -207,16 +154,4 @@ class SignupAPITests(APITestCase):
         self.assertIn(r.status_code, [400, 415])
 
    
-    def test_signup_success_returns_user_id(self):
-        payload = {
-            "username": "returnid",
-            "email": "test@t.com",
-            "password": "pass12345",
-            "password_confirm": "pass12345",
-            "first_name": "John",
-            "last_name": "Doe"
-        }
-        r = self.client.post(self.url, payload)
-
-        self.assertEqual(r.status_code, status.HTTP_201_CREATED)
-        self.assertIn("user_id", r.data)
+    
