@@ -58,11 +58,9 @@ class EventViewSet(viewsets.ModelViewSet):
         event = self.get_object()
         if event.created_by != self.request.user:
             raise PermissionDenied('You can only update events created by you')
-
-        # Prevent editing past events
+        
         if event.start_time < timezone.now():
             raise PermissionDenied('Cannot edit past events')
-
         try:
             serializer.save()
         except DjangoValidationError as exc:
@@ -79,8 +77,6 @@ class EventViewSet(viewsets.ModelViewSet):
         if event.created_by != request.user:
             return Response({'error': 'You can only delete events created by you'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Use update() to bypass model validation for soft deletion
-        # This allows deleting both past and upcoming events
         Event.objects.filter(pk=event.pk).update(
             deleted_at=timezone.now(),
             deleted_by=request.user
@@ -138,10 +134,9 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         if registration.student != request.user:
             return Response({'error': 'You can only unregister from your own registrations'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Prevent unregistering from past events
         if registration.event.start_time < timezone.now():
             return Response({'error': 'Cannot unregister from past events'}, status=status.HTTP_403_FORBIDDEN)
-
+        
         registration.delete()
         return Response({'message': 'Successfully unregistered from event'}, status=status.HTTP_200_OK)
 
