@@ -4,6 +4,7 @@ from rest_framework import serializers
 from .models import Role, User, UserRole
 from rest_framework.exceptions import AuthenticationFailed
 import re
+from django.contrib.auth.password_validation import validate_password
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -57,6 +58,11 @@ class SignupSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
+        # validate_password(password)
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            raise serializers.ValidationError(",".join(e))
         user = User.objects.create_user(**validated_data)
         user.set_password(password)
         user.save()

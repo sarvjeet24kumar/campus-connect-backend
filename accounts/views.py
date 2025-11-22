@@ -16,8 +16,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 @permission_classes([AllowAny])
 def signup(request):
     serializer = SignupSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.save()
+    if serializer.is_valid(raise_exception=True):
+        serializer.save()
         return Response({
             'message': 'Signup successful. Please login.',
             # 'user_id': user.id
