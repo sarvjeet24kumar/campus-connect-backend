@@ -4,9 +4,9 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied, ValidationError as DRFValidationError
 from .models import Event, Location, Registration
 from .serializers import EventSerializer, LocationSerializer, RegistrationSerializer, StudentRegistrationSerializer
-from rest_framework.exceptions import PermissionDenied, ValidationError as DRFValidationError
 
 class LocationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Location.objects.all()

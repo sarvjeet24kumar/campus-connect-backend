@@ -1,5 +1,4 @@
 from django.urls import reverse
-from rest_framework import status
 from rest_framework.test import APITestCase
 from accounts.models import User, Role, UserRole
 
@@ -15,14 +14,14 @@ class AdminLoginTests(APITestCase):
     def test_admin_login_success(self):
         u = User.objects.create_user(username="adm", password="pass123")
         UserRole.objects.create(user=u, role=self.admin_role)
-        r = self.client.post(self.url, {"username": "adm", "password": "pass123", "is_admin": True})
+        r = self.client.post(self.url, {"username": "adm", "password": "pass123"})
         self.assertEqual(r.status_code, 200)
 
 
     def test_super_admin_login_success(self):
         u = User.objects.create_user(username="super", password="pass123")
         UserRole.objects.create(user=u, role=self.super_role)
-        r = self.client.post(self.url, {"username": "super", "password": "pass123", "is_admin": True})
+        r = self.client.post(self.url, {"username": "super", "password": "pass123"})
         self.assertEqual(r.status_code, 200)
 
 
@@ -44,7 +43,7 @@ class AdminLoginTests(APITestCase):
     def test_super_admin_has_access_to_admin_login(self):
         u = User.objects.create_user(username="su111", password="x")
         UserRole.objects.create(user=u, role=self.super_role)
-        r = self.client.post(self.url, {"username": "su111", "password": "x", "is_admin": True})
+        r = self.client.post(self.url, {"username": "su111", "password": "x"})
         self.assertEqual(r.status_code, 200)
 
 
@@ -57,11 +56,11 @@ class AdminLoginTests(APITestCase):
     def test_admin_cannot_login_with_blank_password(self):
         u = User.objects.create_user(username="bladmin", password="abc123")
         UserRole.objects.create(user=u, role=self.admin_role)
-        r = self.client.post(self.url, {"username": "bladmin", "password": "", "is_admin": True})
+        r = self.client.post(self.url, {"username": "bladmin", "password": ""})
         self.assertEqual(r.status_code, 400)
 
     def test_admin_login_fails_empty_payload(self):
-        r = self.client.post(self.url, {"is_admin": True})
+        r = self.client.post(self.url, {})
         self.assertEqual(r.status_code, 400)
 
     

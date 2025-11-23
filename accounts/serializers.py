@@ -27,16 +27,29 @@ class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'password', 'password_confirm', 'first_name', 'last_name')
+    def validate_username(self, value):
+        username = value.strip()
+
+        if len(username) < 3 or len(username) > 20:
+            raise serializers.ValidationError("Username must be 3–20 characters long.")
+
+        pattern = r'^(?=.*[A-Za-z])[A-Za-z0-9]+$'
+        if not re.match(pattern, username):
+            raise serializers.ValidationError(
+                "Username must contain at least one letter and only letters and numbers are allowed."
+            )
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError("Username already exists.")
+
+        return username
+
+
     def validate_first_name(self, value):
         return self.validate_alpha(value,'first_name')
 
     def validate_last_name(self, value):
         return self.validate_alpha(value,'last_name')
-    
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("Username already exists.")
-        return value
+
 
     def validate_email(self, value):
         try:
@@ -58,7 +71,6 @@ class SignupSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
-        # validate_password(password)
         try:
             validate_password(password)
         except ValidationError as e:

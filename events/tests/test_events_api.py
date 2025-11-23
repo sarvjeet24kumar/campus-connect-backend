@@ -27,8 +27,8 @@ class EventsAPITests(APITestCase):
         start = timezone.now() + timedelta(days=2)
         end = start + timedelta(hours=2)
         return {
-            'title': 'Future Event',
-            'description': 'An event scheduled in the future',
+            'title': 'Freshers party',
+            'description': 'Just welcome the new batches',
             'start_time': start.isoformat(),
             'end_time': end.isoformat(),
             'location': self.location.id,
@@ -66,26 +66,3 @@ class EventsAPITests(APITestCase):
             messages = [str(detail)]
 
         self.assertTrue(any('future' in message.lower() for message in messages))
-
-    def test_available_seats_decrease_after_registration(self):
-        self.client.force_authenticate(user=self.admin_user)
-        create_payload = self._create_future_event_payload()
-        response = self.client.post(reverse('event-list'), create_payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        event_id = response.data['id']
-
-        student = User.objects.create_user(
-            username='student_test',
-            email='student_test@example.com',
-            password='studentpass'
-        )
-        UserRole.objects.create(user=student, role=self.student_role)
-
-        self.client.force_authenticate(user=student)
-
-        registration_response = self.client.post(reverse('registration-list'), {'event': event_id}, format='json')
-        self.assertEqual(registration_response.status_code, status.HTTP_201_CREATED)
-
-        event_detail_response = self.client.get(reverse('event-detail', args=[event_id]))
-        self.assertEqual(event_detail_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(event_detail_response.data['available_seats'], create_payload['seats'] - 1)

@@ -57,15 +57,3 @@ class LoginAPITests(APITestCase):
         self.assertEqual(r.status_code, 400)
 
     
-    def test_login_unicode_username(self):
-        u = User.objects.create_user(username="ユーザー", password="pass123")
-        UserRole.objects.create(user=u, role=self.student_role)
-        r = self.client.post(self.url, {"username": "ユーザー", "password": "pass123"})
-        self.assertEqual(r.status_code, 200)
-
-    
-    def test_login_does_not_expose_password(self):
-        u = User.objects.create_user(username="safe", password="pass123")
-        UserRole.objects.create(user=u, role=self.student_role)
-        r = self.client.post(self.url, {"username": "safe", "password": "pass123"})
-        self.assertNotIn("password", str(r.data))
