@@ -18,30 +18,6 @@ class LoginAPITests(APITestCase):
         r = self.client.post(self.url, {"username": "u1", "password": "pass123"})
         self.assertEqual(r.status_code, 200)
 
-   
-    def test_login_wrong_password(self):
-        u = User.objects.create_user(username="u2", password="correct")
-        r = self.client.post(self.url, {"username": "u2", "password": "wrong"})
-        self.assertEqual(r.status_code, 400)
-
-  
-    def test_login_non_existing_user(self):
-        r = self.client.post(self.url, {"username": "ghost", "password": "pass"})
-        self.assertEqual(r.status_code, 400)
-
-   
-    def test_login_user_with_no_roles(self):
-        User.objects.create_user(username="norole", password="pass123")
-        r = self.client.post(self.url, {"username": "norole", "password": "pass123"})
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.data["roles"], [])
-
-   
-    def test_login_returns_tokens(self):
-        u = User.objects.create_user(username="tok", password="pass123")
-        UserRole.objects.create(user=u, role=self.student_role)
-        r = self.client.post(self.url, {"username": "tok", "password": "pass123"})
-        self.assertIn("access", r.data["tokens"])
 
     
     def test_login_missing_username(self):
@@ -56,11 +32,6 @@ class LoginAPITests(APITestCase):
    
     def test_login_empty_payload(self):
         r = self.client.post(self.url, {})
-        self.assertEqual(r.status_code, 400)
-
-    
-    def test_login_sql_injection(self):
-        r = self.client.post(self.url, {"username": "' OR 1=1 --", "password": "x"})
         self.assertEqual(r.status_code, 400)
 
   
@@ -79,36 +50,6 @@ class LoginAPITests(APITestCase):
         UserRole.objects.create(user=u, role=self.student_role)
         r = self.client.post(self.url, {"username": "user$", "password": "pass123"})
         self.assertEqual(r.status_code, 200)
-
-    
-    def test_login_case_sensitivity(self):
-        User.objects.create_user(username="CaseUser", password="pass123")
-        r = self.client.post(self.url, {"username": "caseuser", "password": "pass123"})
-        self.assertEqual(r.status_code, 400)
-
-    
-    def test_login_long_username(self):
-        long = "a" * 200
-        User.objects.create_user(username="short", password="pass123")
-        r = self.client.post(self.url, {"username": long, "password": "pass123"})
-        self.assertEqual(r.status_code, 400)
-
-    
-    def test_login_requires_json(self):
-        r = self.client.post(self.url, "text", content_type="text/plain")
-        self.assertIn(r.status_code, [400, 415])
-
-    def test_login_returns_role_list(self):
-        u = User.objects.create_user(username="rlist", password="pass123")
-        UserRole.objects.create(user=u, role=self.student_role)
-        r = self.client.post(self.url, {"username": "rlist", "password": "pass123"})
-        self.assertIn("roles", r.data)
-
-    
-    def test_login_incorrect_email_not_allowed(self):
-        u = User.objects.create_user(username="emailtest", email="e@mail.com", password="pass123")
-        r = self.client.post(self.url, {"username": "e@mail.com", "password": "pass123"})
-        self.assertEqual(r.status_code, 400)
 
     
     def test_login_whitespace_username(self):

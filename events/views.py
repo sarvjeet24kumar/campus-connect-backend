@@ -4,10 +4,9 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError as DRFValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError as DRFValidationError
 from .models import Event, Location, Registration
 from .serializers import EventSerializer, LocationSerializer, RegistrationSerializer, StudentRegistrationSerializer
-from rest_framework.exceptions import PermissionDenied, ValidationError as DRFValidationError
 
 class LocationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Location.objects.all()
@@ -59,7 +58,9 @@ class EventViewSet(viewsets.ModelViewSet):
         event = self.get_object()
         if event.created_by != self.request.user:
             raise PermissionDenied('You can only update events created by you')
-
+        
+        if event.start_time < timezone.now():
+            raise PermissionDenied('Cannot edit past events')
         try:
             serializer.save()
         except DjangoValidationError as exc:
@@ -76,9 +77,10 @@ class EventViewSet(viewsets.ModelViewSet):
         if event.created_by != request.user:
             return Response({'error': 'You can only delete events created by you'}, status=status.HTTP_403_FORBIDDEN)
 
-        event.deleted_at = timezone.now()
-        event.deleted_by = request.user
-        event.save()
+        Event.objects.filter(pk=event.pk).update(
+            deleted_at=timezone.now(),
+            deleted_by=request.user
+        )
 
         Registration.objects.filter(event=event).delete()
 
@@ -132,6 +134,9 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         if registration.student != request.user:
             return Response({'error': 'You can only unregister from your own registrations'}, status=status.HTTP_403_FORBIDDEN)
 
+        if registration.event.start_time < timezone.now():
+            return Response({'error': 'Cannot unregister from past events'}, status=status.HTTP_403_FORBIDDEN)
+        
         registration.delete()
         return Response({'message': 'Successfully unregistered from event'}, status=status.HTTP_200_OK)
 
